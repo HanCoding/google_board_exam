@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", initialize);
 async function initialize() {
   collectElements();
   bindEvents();
+  registerServiceWorker();
 
   const configured = isConfigured();
   elements.setupNotice.hidden = configured;
@@ -38,6 +39,31 @@ async function initialize() {
     elements.emptyTitle.textContent = "연결 설정을 완료해 주세요.";
     elements.emptyDescription.textContent = "config.js에 두 설정값을 입력하면 게시글이 표시됩니다.";
   }
+}
+
+function registerServiceWorker() {
+  // file:// 로 직접 열었거나 지원하지 않는 브라우저에서는 조용히 넘어갑니다.
+  if (!("serviceWorker" in navigator)) return;
+
+  window.addEventListener("load", async () => {
+    try {
+      const registration = await navigator.serviceWorker.register("./sw.js");
+
+      // 이미 동작 중인 앱 위에 새 버전이 설치되면 새로고침을 안내합니다.
+      registration.addEventListener("updatefound", () => {
+        const installing = registration.installing;
+        if (!installing || !navigator.serviceWorker.controller) return;
+
+        installing.addEventListener("statechange", () => {
+          if (installing.state === "installed") {
+            showToast("새 버전이 준비되었습니다. 새로고침해 주세요.");
+          }
+        });
+      });
+    } catch (error) {
+      console.warn("서비스 워커 등록에 실패했습니다.", error);
+    }
+  });
 }
 
 function collectElements() {

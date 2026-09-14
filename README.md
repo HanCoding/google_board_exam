@@ -85,6 +85,18 @@ Google 클라이언트 ID와 Apps Script 배포 URL은 비밀번호가 아니며
 4. 프레임워크 프리셋은 **None**, 빌드 명령은 비워 두고, 출력 디렉터리는 `/`로 지정합니다.
 5. 배포된 `pages.dev` 주소를 Google Cloud의 승인된 JavaScript 원본에 추가합니다.
 
+## 7. PWA (홈 화면 설치 및 오프라인)
+
+`manifest.json`과 `sw.js`로 설치형 앱과 오프라인 표시를 지원합니다.
+
+- 서비스 워커는 앱 셸(`index.html`, `styles.css`, `config.js`, `app.js`, 아이콘)만 캐시합니다.
+- Apps Script API 호출과 Google 로그인 스크립트는 교차 출처라 가로채지 않으며 항상 네트워크로 나갑니다. 따라서 오프라인에서는 화면은 뜨지만 게시글은 불러오지 못합니다.
+- 서비스 워커는 HTTPS 또는 `localhost`에서만 동작합니다. `file://`로 연 경우에는 등록되지 않습니다.
+
+**앱 셸 파일을 수정하면 `sw.js`의 `CACHE_VERSION`을 올려야 합니다.** 버전을 올리지 않으면 기존 방문자는 캐시된 예전 파일을 계속 보게 됩니다.
+
+아이콘을 교체할 때는 `assets/icon-192.png`, `assets/icon-512.png`와 여백을 포함한 `assets/icon-maskable-512.png`를 함께 갱신합니다.
+
 ## 보안 및 운영 참고
 
 - 작성·수정·삭제 요청은 화면 표시와 관계없이 Apps Script에서 Google 토큰과 작성자를 다시 확인합니다.
