@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="누구나 읽고, Google 로그인 사용자가 글을 작성하는 작은 게시판"
+    />
+    <title>모두의 게시판</title>
+    <link rel="icon" type="image/png" href="./assets/favicon.png" />
+    <link rel="apple-touch-icon" href="./assets/favicon.png" />
+    <link rel="preconnect" href="https://accounts.google.com" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="./config.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="./" aria-label="모두의 게시판 홈">
+          <span class="brand-mark" aria-hidden="true">M</span>
+          <span>모두의 게시판</span>
+        </a>
+
+        <div class="auth-area">
+          <div id="signedOutArea">
+            <div id="googleSignIn"></div>
+          </div>
+
+          <div id="signedInArea" class="user-menu" hidden>
+            <img id="userPicture" class="user-picture" alt="" />
+            <div class="user-copy">
+              <strong id="userName"></strong>
+              <span>Google 로그인</span>
+            </div>
+            <button id="logoutButton" class="button button-ghost button-small" type="button">
+              로그아웃
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="heroTitle">
+          <div>
+            <p class="eyebrow">OPEN BOARD</p>
+            <h1 id="heroTitle">생각을 나누고,<br />이야기를 이어가세요.</h1>
+            <p class="hero-description">
+              글은 누구나 자유롭게 읽을 수 있어요. Google 계정으로 로그인하면 새로운
+              글을 쓰고 내 글을 관리할 수 있습니다.
+            </p>
+          </div>
+          <button id="writeButton" class="button button-primary hero-button" type="button">
+            <span aria-hidden="true">＋</span>
+            새 글 작성
+          </button>
+        </section>
+
+        <section class="board" aria-labelledby="boardTitle">
+          <div class="board-toolbar">
+            <div>
+              <p class="section-label">BOARD</p>
+              <h2 id="boardTitle">최근 이야기</h2>
+            </div>
+
+            <label class="search-box">
+              <span class="sr-only">게시글 검색</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19">
+                <path
+                  d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-width="2"
+                />
+              </svg>
+              <input id="searchInput" type="search" placeholder="제목이나 내용 검색" />
+            </label>
+          </div>
+
+          <div id="setupNotice" class="notice notice-warning" hidden>
+            <strong>연결 설정이 필요합니다.</strong>
+            <span><code>config.js</code>에 Google 클라이언트 ID와 Apps Script 주소를 입력해 주세요.</span>
+          </div>
+
+          <div id="loadingState" class="state-panel" aria-live="polite">
+            <span class="spinner" aria-hidden="true"></span>
+            <p>게시글을 불러오고 있습니다.</p>
+          </div>
+
+          <div id="errorState" class="state-panel" hidden>
+            <div class="state-icon" aria-hidden="true">!</div>
+            <h3>게시글을 불러오지 못했습니다.</h3>
+            <p id="errorMessage">잠시 후 다시 시도해 주세요.</p>
+            <button id="retryButton" class="button button-secondary" type="button">다시 시도</button>
+          </div>
+
+          <div id="emptyState" class="state-panel" hidden>
+            <div class="state-icon" aria-hidden="true">✦</div>
+            <h3 id="emptyTitle">아직 작성된 글이 없습니다.</h3>
+            <p id="emptyDescription">첫 번째 이야기를 남겨 보세요.</p>
+          </div>
+
+          <div id="postList" class="post-list" aria-live="polite"></div>
+
+          <div class="board-footer">
+            <span id="postCount">총 0개의 글</span>
+            <button id="refreshButton" class="text-button" type="button">새로고침</button>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span>모두의 게시판</span>
+        <span>Google Sheets로 운영되는 작은 커뮤니티</span>
+      </footer>
+    </div>
+
+    <dialog id="detailDialog" class="dialog detail-dialog">
+      <div class="dialog-frame">
+        <div class="dialog-topbar">
+          <span class="dialog-kicker">POST</span>
+          <button class="icon-button" type="button" data-close-dialog="detailDialog" aria-label="닫기">
+            ×
+          </button>
+        </div>
+
+        <article>
+          <h2 id="detailTitle" class="detail-title"></h2>
+          <div class="post-meta detail-meta">
+            <span id="detailAuthor"></span>
+            <span aria-hidden="true">·</span>
+            <time id="detailDate"></time>
+            <span id="detailEdited" class="edited-label" hidden>수정됨</span>
+          </div>
+          <div id="detailContent" class="detail-content"></div>
+        </article>
+
+        <div id="detailActions" class="dialog-actions" hidden>
+          <button id="editButton" class="button button-secondary" type="button">수정</button>
+          <button id="deleteButton" class="button button-danger" type="button">삭제</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="editorDialog" class="dialog editor-dialog">
+      <form id="postForm" class="dialog-frame">
+        <div class="dialog-topbar">
+          <div>
+            <span class="dialog-kicker">WRITE</span>
+            <h2 id="editorTitle">새 글 작성</h2>
+          </div>
+          <button class="icon-button" type="button" data-close-dialog="editorDialog" aria-label="닫기">
+            ×
+          </button>
+        </div>
+
+        <label class="field">
+          <span>제목</span>
+          <input
+            id="titleInput"
+            name="title"
+            type="text"
+            maxlength="100"
+            placeholder="제목을 입력해 주세요"
+            required
+          />
+          <small><span id="titleCount">0</span>/100</small>
+        </label>
+
+        <label class="field">
+          <span>내용</span>
+          <textarea
+            id="contentInput"
+            name="content"
+            maxlength="5000"
+            rows="12"
+            placeholder="나누고 싶은 이야기를 적어 주세요"
+            required
+          ></textarea>
+          <small><span id="contentCount">0</span>/5000</small>
+        </label>
+
+        <div class="dialog-actions">
+          <button class="button button-ghost" type="button" data-close-dialog="editorDialog">취소</button>
+          <button id="submitButton" class="button button-primary" type="submit">등록하기</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>
