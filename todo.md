@@ -60,8 +60,9 @@
 
 Search Console 인증까지 마쳤으니 이어서 할 것들:
 
-- [ ] `robots.txt` 추가 (현재 없음)
-- [ ] `sitemap.xml` 추가 후 Search Console에 제출 (현재 없음)
+- [x] `robots.txt` 추가 — 전체 허용 + `Sitemap:` 줄
+- [x] `sitemap.xml` 추가 — 홈 1개 URL (SPA라 개별 글 URL이 없음)
+- [ ] Search Console / 네이버 서치어드바이저에 `sitemap.xml` 제출 (배포 후)
 - [ ] Open Graph / Twitter Card 메타 태그 추가 (현재 `og:` 태그 0개) — 링크 공유 시 미리보기 카드
 - [ ] 정식 URL(`<link rel="canonical">`) 지정
 
@@ -70,7 +71,7 @@ Search Console 인증까지 마쳤으니 이어서 할 것들:
 ### C. 유지보수 시 주의
 
 - [ ] **앱 셸(`index.html`, `styles.css`, `app.js`, `config.js`) 수정 시 `sw.js`의 `CACHE_VERSION` 올리기**
-  현재 `v1`. 버전을 올리지 않으면 기존 방문자는 캐시된 예전 파일을 계속 봄.
+  현재 `v2`. 버전을 올리지 않으면 기존 방문자는 캐시된 예전 파일을 계속 봄.
   (HTML은 네트워크 우선이라 비교적 안전하지만, CSS/JS는 캐시가 먼저 나감)
 
 - [ ] 아이콘 교체 시 `icon-192` / `icon-512` / `icon-maskable-512` 3종 함께 갱신
